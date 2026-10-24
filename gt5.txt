@@ -1,0 +1,129 @@
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    public float speed = 6f;
+    public float rotationSpeed = 10f;
+
+    void Update()
+    {
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 direction = new Vector3(x, 0, z);
+
+        if (direction.magnitude > 0.1f)
+        {
+            transform.Translate(direction.normalized * speed * Time.deltaTime);
+
+            Quaternion targetRotation =
+                Quaternion.LookRotation(direction);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
+        }
+    }
+}
+2. Simple car controller
+using UnityEngine;
+
+public class CarController : MonoBehaviour
+{
+    public float speed = 20f;
+    public float turnSpeed = 60f;
+
+    void Update()
+    {
+        float move = Input.GetAxis("Vertical");
+        float turn = Input.GetAxis("Horizontal");
+
+        transform.Translate(Vector3.forward * move * speed * Time.deltaTime);
+        transform.Rotate(Vector3.up * turn * turnSpeed * Time.deltaTime);
+    }
+}
+3. Shooting system
+using UnityEngine;
+
+public class Gun : MonoBehaviour
+{
+    public Camera playerCamera;
+    public float range = 100f;
+    public int damage = 25;
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+        }
+    }
+
+    void Shoot()
+    {
+        Ray ray = playerCamera.ScreenPointToRay(
+            new Vector3(Screen.width / 2, Screen.height / 2)
+        );
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, range))
+        {
+            Health target = hit.transform.GetComponent<Health>();
+
+            if (target != null)
+            {
+                target.TakeDamage(damage);
+            }
+        }
+    }
+}
+4. Health system
+using UnityEngine;
+
+public class Health : MonoBehaviour
+{
+    public int health = 100;
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Destroy(gameObject);
+    }
+}
+5. Wanted level
+using UnityEngine;
+
+public class WantedSystem : MonoBehaviour
+{
+    public int wantedLevel = 0;
+
+    public void AddWantedLevel()
+    {
+        wantedLevel++;
+
+        if (wantedLevel > 5)
+            wantedLevel = 5;
+
+        Debug.Log("Wanted Level: " + wantedLevel);
+    }
+
+    public void ReduceWantedLevel()
+    {
+        wantedLevel--;
+
+        if (wantedLevel < 0)
+            wantedLevel = 0;
+    }
+}
